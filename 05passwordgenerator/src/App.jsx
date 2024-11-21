@@ -2,92 +2,75 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 
 
 function App() { 
-  const [length, setLength ] = useState(6)
-  const [checkNum, setNum ] = useState(false)
-  const [checkChar, setChar ] = useState(false)
-  const [password, setPassword ] = useState("pass")
+const [length, setLength] = useState(6)
+const [numAllowed, setNumAllowed] = useState(false)
+const [charAllowed, setCharAllowed] = useState(false)
+const [pass, setPass] = useState("")
 
-  const passwordRef = useRef(null)
-
-  const passwordGenerator = useCallback(() => {
-    let pass = "";
-    let str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-    if (checkNum) str +="0123456789";
-    if (checkChar) str +="~!@#$%^&*()_+{}:<>?,./;'[]=-`";
-    for (let index = 1; index <= length; index++) {
-        let char = Math.floor(Math.random() * str.length + 1)
-        pass += str.charAt(char)      
+const generatePass = useCallback(() => {
+  let pass = ""
+  let str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+  let char = "`~!@#$%^&*()_"
+  let  num = "0123456789"
+  if (charAllowed) str += char
+  if (numAllowed) str += num
+  for(let i = 0; i < length; i++) {
+    const index = Math.floor((Math.random() * str.length) + 1)
+    pass += str.charAt(index);
     }
-    setPassword(pass)
-    console.log(password);
-    
-  }, [length, checkNum, checkChar, setPassword])
+    setPass(pass);
+}, [length, numAllowed, charAllowed])
 
-  const copyPasswordToClipBoard = useCallback(()=>{
-    passwordRef.current?.select();
-    passwordRef.current?.setSelectionRange(0, 3);
-    window.navigator.clipboard.writeText(password);
-   } , [password] )
+const passRef = useRef(null);
 
-useEffect(()=>{passwordGenerator()}, [length, checkNum, checkChar, passwordGenerator])
+useEffect(() => {
+  generatePass();
+}, [length, numAllowed, charAllowed])
 
+const copyPasstoclipBoard = () => {
+  window.navigator.clipboard.writeText(pass);
+  passRef.current.select();
+}
 
   return (
-  <>
-    <div className="w-full max-w-md mx-auto shadow-md rounded-lg px-4 py-3 my-8 text-orange-500 bg-gray-800">
-      
-      
-      <h1 className="text-center text-white my-3">Password Generator</h1>
-      
-      
-      <div className="flex shadow rounded-lg overflow-hidden mb-4 ">
-        
-        <input type='text' 
-        value = {password}
-        className='outline-none w-full py-1 px-3'
-        placeholder='Password'
-        readOnly
-         ref = {passwordRef}
-         />
-        <button
-        onClick={copyPasswordToClipBoard}>Copy</button>
-      </div>
-      
-      
-      <div className='flex text-sm gap-x-2'>
-        <div className="flex items-center gap-x-1 ">
-          <input type="range"
-          min={6}
-          max={100}
-          value={length}
-          className='cursor-pointer'
-          onChange={(e)=> setLength(e.target.value) } />
-          <label >Length: {length}</label>
-        </div>
-        
-        
-        <div className="flex items-center gap-x-1">
-          <input type="checkbox"
-          defaultChecked={checkNum}
-          id="numberInput"
-          onChange={()=>setNum((prev)=>!prev)} />
-          <label >Numbers</label>
-        </div>
-        
-        
-        <div className="flex items-center gap-x-1">
-          <input type="checkbox"
-          defaultChecked={checkChar}
-          id="characterInput"
-          onChange={()=>setChar((prev)=>!prev)} />
-          <label >Characters</label>
-        </div>
-      
-      
-      </div>
+ <>
+<div className=' w-full max-w-md mx-auto shadow-md rounded-lg px-4 py-3 my-8 bg-gray-600 text-lime-500'>
+    
+    <h6 className='text-white text-center'> Passwod Generator</h6>
+    
+    <div className='flex shadow rounded-lg overflow-hidden mb-4 '>
+    <input type="text"
+    value={pass}
+    className='outline-none w-full py-1 px-3' 
+    placeholder = "Password"
+    ref =  {passRef} />
+    
+    <button 
+    onClick={copyPasstoclipBoard}
+    className='outline-none bg-blue-700 text-white px-3 py-0.5 shrink-0 '>Copy</button>
     </div>
+    
+    
+    <div  className='flex items-center gap-x-1'>
+    <input type="range" className='cursor-pointer'
+    min={6}
+    max={100}
+    value={length}
+    onChange={(e) =>setLength(e.target.value) } />
+    <label htmlFor="length">Length: {length}</label>
 
-    </>
+    <div className='flex items-center gap-x-1'>
+    <input type="checkbox" defaultChecked={numAllowed} onChange={() => {setNumAllowed((prev) => !prev)} }  />
+    <label htmlFor="number">Numbers</label>
+    
+    <input type="checkbox" defaultChecked={charAllowed} onChange={() => {setCharAllowed((prev) => !prev)}} />
+    <label htmlFor="charInput">Characters</label>
+    </div>
+    
+    
+    </div>
+</div>
+ </>
   )
 }
 
